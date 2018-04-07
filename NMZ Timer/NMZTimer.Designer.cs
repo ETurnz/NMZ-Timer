@@ -36,6 +36,7 @@
             this.btnStop = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
             this.lblWarning = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -72,6 +73,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.btnStop);
             this.panel2.Controls.Add(this.btnReset);
             this.panel2.Location = new System.Drawing.Point(0, 113);
@@ -113,6 +115,15 @@
             this.lblWarning.Text = "DRINK OVERLOAD";
             this.lblWarning.Visible = false;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(84, 95);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(46, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "(Ctrl + 1)";
+            // 
             // NMZTimer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -129,6 +140,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -143,6 +155,7 @@
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Label lblWarning;
+        private System.Windows.Forms.Label label1;
     }
 }
 

@@ -9,22 +9,41 @@ using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Input;
 
+//Plays a sound when 5 minutes has passed, plays again every 30 seconds if not reset
 namespace WindowsFormsApplication1
 {
-    //Plays a sound when 5 minutes has passed, plays again every 30 seconds if not reset
     public partial class NMZTimer : Form
     {
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
         //Var declarations
-        SoundPlayer alert;
+        SoundPlayer alert, reset;
         Timer time;
-        float timeLeft;
-        float maxTime;
+
+        float timeLeft, maxTime;
         string defaultTime;
+
+        enum KeyModifier
+        {
+            None = 0,
+            Alt = 1,
+            Control = 2,
+            Shift = 4,
+            WinKey = 8
+        }
 
         public NMZTimer()
         {
             InitializeComponent();
+
+            int id = 0;
+            RegisterHotKey(this.Handle, id, (int)KeyModifier.Control, Keys.D1.GetHashCode());
         }
 
         //Initializes variables and centers UI objects
@@ -35,6 +54,7 @@ namespace WindowsFormsApplication1
 
             time = new Timer();
             alert = new SoundPlayer(Properties.Resources.alert);
+            reset = new SoundPlayer(Properties.Resources.reset);
             time.Tick += new EventHandler(TimerTick);
 
             panel2.Visible = false;
@@ -58,7 +78,7 @@ namespace WindowsFormsApplication1
             TimeSpan t = TimeSpan.FromMinutes(Convert.ToDouble(timeLeft));
             string timeFormatted = t.ToString(@"hh\:mm");
 
-            if (timeLeft == 0 || timeLeft == -2 || timeLeft == -4 || timeLeft == -30 || timeLeft == -32 || timeLeft == -34)
+            if (timeLeft == 0 || timeLeft == -2 || timeLeft == -30 || timeLeft == -32)
             {
                 alert.Play();
             }
@@ -73,6 +93,26 @@ namespace WindowsFormsApplication1
             CenterTime();
         }
 
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            if (m.Msg == 0x0312 && panel2.Visible)
+            {
+                /* Note that the three lines below are not needed if you only want to register one hotkey.
+                 * The below lines are useful in case you want to register multiple keys, which you can use a switch with the id as argument, or if 
+                 * you want to know which key/modifier was pressed for some particular reason. */
+
+                Keys key = (Keys)(((int)m.LParam >> 16) & 0xFFFF);                  // The key of the hotkey that was pressed.
+                KeyModifier modifier = (KeyModifier)((int)m.LParam & 0xFFFF);       // The modifier of the hotkey that was pressed.
+                int id = m.WParam.ToInt32();                                        // The id of the hotkey that was pressed.
+
+                //Resets timer
+                ResetTimer();
+                reset.Play();
+            }
+        }
+
         //Start button, swaps visible UI and resets time
         private void button1_Click(object sender, EventArgs e)
         {
@@ -83,7 +123,7 @@ namespace WindowsFormsApplication1
             time.Enabled = true;
         }
 
-        //Resets timer
+        //Called when reset button is clicked
         private void btnReset_Click(object sender, EventArgs e)
         {
             timeLeft = maxTime;
@@ -110,6 +150,15 @@ namespace WindowsFormsApplication1
         void CenterTime()
         {
             lblTime.Location = new Point((this.Width / 2) - (lblTime.Size.Width / 2), lblTime.Location.Y);
+        }
+
+        //Performs same action as clicking reset button
+        void ResetTimer()
+        {
+            timeLeft = maxTime;
+            lblTime.Text = defaultTime;
+            lblWarning.Visible = false;
+            CenterTime();
         }
     }
 }

@@ -1,0 +1,1 @@
+signtool sign /a "F:\Libraries\Documents\VS Projects\NMZ Timer\NMZ Timer\bin\Release\NMZ Timer.exe"
